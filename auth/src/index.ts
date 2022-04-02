@@ -1,4 +1,5 @@
 import express from 'express';
+import 'express-async-errors'; // to handle thrown errors in async functions
 import {
   currentUserRouter,
   signinRouter,
