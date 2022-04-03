@@ -8,6 +8,8 @@ import {
 } from './routes';
 import { errorHandler } from './middlewares/error-handler';
 import { NotFoundError } from './errors/not-found-error';
+import mongoose from 'mongoose';
+import { DatabaseConnectionError } from './errors';
 
 const app = express();
 app.use(express.json());
@@ -25,5 +27,14 @@ app.use('*', (req) => {
 
 //handle Error
 app.use(errorHandler);
+
+const start = async () => {
+  await mongoose.connect('mongodb://auth-mongo-srv:27017/auth').catch((err) => {
+    console.log('error:', err);
+  });
+  console.log('db connected successfully');
+};
+
+start();
 
 app.listen(3000, () => console.log('auth listening on port 3000!!'));

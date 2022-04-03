@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import joi from 'joi';
 import { httpStatus } from '../utils';
-import { RequestValidationError, DatabaseConnectionError } from '../errors';
+import { RequestValidationError } from '../errors';
 
 const router = Router();
 
-router.post('/api/users/signup', (req, res) => {
+router.post('/api/users/signup', async (req, res) => {
   console.log('signing up...');
   const validationSchema = joi.object({
     email: joi.string().required().email(),
