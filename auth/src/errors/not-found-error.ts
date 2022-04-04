@@ -8,6 +8,6 @@ export class NotFoundError extends CustomError {
     Object.setPrototypeOf(this, NotFoundError.prototype);
   }
   serializeError() {
-    return { error: `${this.resourceName} not found!` };
+    return { error: `${this.resourceName} not found! ` };
   }
 }

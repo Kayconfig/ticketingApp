@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema(
 );
 
 userSchema.statics.createUser = (userDetails: IUser) => {
-  return new model({ ...userDetails });
+  return model.create({ ...userDetails });
 };
 
 const model = mongoose.model<UserDoc, IUserModel>('user', userSchema);

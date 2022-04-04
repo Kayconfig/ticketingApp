@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import joi from 'joi';
 import { httpStatus } from '../utils';
-import { RequestValidationError } from '../errors';
+import { BadRequestError, RequestValidationError } from '../errors';
+import { userModel } from '../models/users';
 
 const router = Router();
 
@@ -18,10 +19,16 @@ router.post('/api/users/signup', async (req, res) => {
       httpStatus.BAD_REQUEST
     );
   }
-  res.json({
-    error: null,
-    data: 'You sent valid data',
-  });
+
+  //check if email is in use
+  const { email, password } = req.body;
+  const existingUser = await userModel.findOne({ email });
+  if (existingUser) {
+    throw new BadRequestError('Email already in use!');
+  }
+
+  const user = await userModel.createUser({ email, password });
+  return res.json({ data: user });
 });
 
 export { router as signupRouter };
