@@ -1,21 +1,20 @@
-import dotenv from 'dotenv';
-import { ServerError } from '../errors';
-import bcrypt from 'bcrypt';
-dotenv.config();
+import { scrypt, randomBytes } from 'crypto';
+import { promisify } from 'util';
+
+const scryptAsync = promisify(scrypt);
 
 export class Password {
-  static toHash(password: string): string {
-    if (!process.env.PASSWORD_SALT_ROUND) {
-      throw new ServerError('server unable to create user');
-    }
-    const hashedPass = bcrypt.hashSync(
-      password,
-      process.env.PASSWORD_SALT_ROUND
-    );
-    return hashedPass;
+  static async toHash(password: string) {
+    const salt = randomBytes(8).toString('hex');
+    const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+
+    return `${buf.toString('hex')}.${salt}`;
   }
 
-  static passwordIsCorrect(storedPassword: string, suppliedPassword: string) {
-    return bcrypt.compareSync(suppliedPassword, storedPassword);
+  static async compare(storedPassword: string, suppliedPassword: string) {
+    const [hashedPassword, salt] = storedPassword.split('.');
+    const buf = (await scryptAsync(suppliedPassword, salt, 64)) as Buffer;
+
+    return buf.toString('hex') === hashedPassword;
   }
 }

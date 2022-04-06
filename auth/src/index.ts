@@ -1,40 +1,31 @@
-import express from 'express';
-import 'express-async-errors'; // to handle thrown errors in async functions
-import {
-  currentUserRouter,
-  signinRouter,
-  signoutRouter,
-  signupRouter,
-} from './routes';
-import { errorHandler } from './middlewares/error-handler';
-import { NotFoundError } from './errors/not-found-error';
 import mongoose from 'mongoose';
-import { DatabaseConnectionError } from './errors';
 
-const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-
-app.use(currentUserRouter);
-app.use(signinRouter);
-app.use(signoutRouter);
-app.use(signupRouter);
-
-//handle unknown routes
-app.use('*', (req) => {
-  throw new NotFoundError(req.originalUrl);
-});
-
-//handle Error
-app.use(errorHandler);
+import { app } from './app';
 
 const start = async () => {
-  await mongoose.connect('mongodb://auth-mongo-srv:27017/auth').catch((err) => {
-    console.log('error:', err);
+  console.log('checking workflow for merge...');
+
+  if (!process.env.JWT_KEY) {
+    throw new Error('JWT_KEY must be defined');
+  }
+  if (!process.env.MONGO_URI) {
+    throw new Error('MONGO_URI must be defined');
+  }
+
+  try {
+    await mongoose.connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      useCreateIndex: true,
+    });
+    console.log('Connected to MongoDb');
+  } catch (err) {
+    console.error(err);
+  }
+
+  app.listen(3000, () => {
+    console.log('Listening on port 3000!!!!!!!!');
   });
-  console.log('db connected successfully');
 };
 
 start();
-
-app.listen(3000, () => console.log('auth listening on port 3000!!'));
