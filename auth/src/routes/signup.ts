@@ -3,6 +3,7 @@ import joi from 'joi';
 import { httpStatus } from '../utils';
 import { BadRequestError, RequestValidationError } from '../errors';
 import { userModel } from '../models/users';
+import { Password } from '../services/password';
 
 const router = Router();
 
@@ -21,7 +22,8 @@ router.post('/api/users/signup', async (req, res) => {
   }
 
   //check if email is in use
-  const { email, password } = req.body;
+  let { email, password } = req.body as { email: string; password: string };
+  password = Password.toHash(password);
   const existingUser = await userModel.findOne({ email });
   if (existingUser) {
     throw new BadRequestError('Email already in use!');

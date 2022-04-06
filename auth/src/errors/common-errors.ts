@@ -15,3 +15,17 @@ export class BadRequestError extends CustomError {
     };
   }
 }
+
+export class ServerError extends CustomError {
+  statusCode = httpStatus.SERVER_ERROR;
+  constructor(public message: string) {
+    super();
+    Object.setPrototypeOf(this, ServerError.prototype);
+  }
+
+  serializeError(): IErrorMsg {
+    return {
+      error: this.message,
+    };
+  }
+}
